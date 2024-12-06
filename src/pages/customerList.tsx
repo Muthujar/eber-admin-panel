@@ -154,7 +154,7 @@ const CustomerList = (props:any) => {
       getCustomerList(filters); // Fetch first page on mount
 
     } else{
-      fetchBsCustomer(filters); // Fetch first page on mount
+      // fetchBsCustomer(filters); // Fetch first page on mount
 
 
     }

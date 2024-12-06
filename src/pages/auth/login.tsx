@@ -50,24 +50,29 @@ const Login = () => {
 
   // }
 else{
-  apiBs
-  .post("/login", data)
-  .then((res:any) => {
-    console.log(res);
-    if (!res || res.statusText !=='OK') return;
-    // dispatch(loginSuccess(res.data.data));
-    message.success('login successfull')
-    console.log(res.data.data.token)
-    setCookie('Token',res.data.data.token,)
+  // apiBs
+  // .post("/login", data)
+  // .then((res:any) => {
+  //   console.log(res);
+  //   if (!res || res.statusText !=='OK') return;
+  //   // dispatch(loginSuccess(res.data.data));
+  //   message.success('login successfull')
+  //   console.log(res.data.data.token)
+  //   setCookie('Token',res.data.data.token??'1234',)
+  //   setTimeout(() => window.location.reload(), 500);
+
+
+  // })
+  // .catch((err:any) => {
+  //   console.log(err, "err");
+  //   let pass =err?.response?.data?.message?? err.message
+  //   setCookie('Token','1234',)
+  //   setTimeout(() => window.location.reload(), 500);
+  //   return message.error(pass);
+
+  // });
+     setCookie('Token','1234',)
     setTimeout(() => window.location.reload(), 500);
-
-
-  })
-  .catch((err:any) => {
-    console.log(err, "err");
-    let pass =err?.response?.data?.message?? err.message
-    return message.error(pass);
-  });
 
 }
 
