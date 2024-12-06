@@ -56,6 +56,12 @@ function AddPoints(props:any) {
   useEffect(() => {
 
     console.log(redeemData)
+    const discount=redeemData?.data?.redeemData?.pos_redeem_amount
+    setFormData((prev) => ({
+      ...prev,
+      discount: discount,
+    }));
+
 
   }, [redeemData])
   

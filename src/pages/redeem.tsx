@@ -77,11 +77,19 @@ const RedemptionForm = (props:any) => {
          param.id && navigate("/");
 
         }
-      } else {
+      } 
+      else{
         message.error("error occured");
+
       }
-    });
-    // Add your submission logic here (e.g., API call)
+  
+    })
+    .catch((error:any)=>{
+      const err=error?.errorDetails?.error?.exception[0] 
+        console.log(error)
+        message.error(error??"error occured");
+
+    })
   };
 
   return (
