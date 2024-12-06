@@ -1,3 +1,4 @@
+import apiBs from "./apiBs";
 import apiClient from "./apiClient";
 import axios from "axios";
 export const fetchCustomerList = async (params: {
@@ -65,6 +66,8 @@ export const getBsCustomer = async (
   }
   
 ) => {
-  const response = await axios.get("https://mydemov2.beautecloud.com/be/api/custappt",{params});
+  // const response = await apiBs.get("https://mydemov2.beautecloud.com/be/api/custappt",{params});
+  const response = await apiBs.get("custappt",{params});
+
   return response.data;
 };

@@ -81,8 +81,10 @@ export const VoidPoints = (props:any) => {
           />
         </div>
 
+        <div >Or</div>
+
         {/* Transaction No */}
-        <div className="mb-4">
+        <div className="mb-4 mt-3">
           <label
             htmlFor="transactionNo"
             className="block text-gray-700 font-medium mb-2"

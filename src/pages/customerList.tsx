@@ -42,12 +42,14 @@ const data: any[] = [
   },
 ];
 
-const CustomerList = () => {
+const CustomerList = (props:any) => {
   const { state, getCustomerList, getCustomerDetails,fetchBsCustomer } = useCustomer();
   const { customers, total, loading ,bsCustomer} = state;
   const [size, setSize] = useState<any>('eber');
 
   const [customerList, setCustomerList] = useState([]);
+  const [bsCustomerList, setBsCCustomerList] = useState([]);
+
   const [isloading, setIsLoading] = useState(loading);
 
   const [filters, setFilters] = useState({
@@ -109,7 +111,9 @@ const CustomerList = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <a onClick={() => navigate(`/details/${record.phone_full}`)}>
+                  {/* <a onClick={() => navigateDetails(record)}>{text || "-"}</a> */}
+
+          <a onClick={() => navigateDetails(record)}>
             View More {record.name}
           </a>
         </Space>
@@ -160,14 +164,25 @@ const CustomerList = () => {
 
   useEffect(() => {
     console.log(customers, "cs");
-    const cusList = customers?.map((item: any) => ({
-      ...item,
-      key: item.id, // Set `key` for table rows
-      points: item.points?.[0]?.points || 0, // Safely access points
-    }));
+    console.log(bsCustomer, "bs");
 
-    setCustomerList(cusList);
-  }, [customers]);
+    if (customers){
+      const cusList = customers?.map((item: any) => ({
+        ...item,
+        key: item.id, // Set `key` for table rows
+        points: item.points?.[0]?.points || 0, // Safely access points
+      }));
+  
+      setCustomerList(cusList);
+
+    }else{
+      setCustomerList(bsCustomer??null);
+
+
+    }
+
+
+  }, [customers,bsCustomer]);
 
   const handleSearch = (e: any) => {
     const searchValue = e.target.value; // Assuming it's from an input field
@@ -243,7 +258,7 @@ const CustomerList = () => {
       <Table
         columns={size==='eber'?columns:columns}
         loading={loading} // Show loading state if `cusList` is empty
-        dataSource={customerList}
+        dataSource={size==='eber'?customerList: bsCustomerList}
         pagination={{
           current: filters.page,
           total,

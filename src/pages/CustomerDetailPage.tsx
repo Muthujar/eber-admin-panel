@@ -74,6 +74,7 @@ const CustomerDetail = () => {
   const handleRedeem = (item: any, index: any) => {
     console.log(item);
     navigate(`/redeem/${index}`);
+    
     // setIssueMode(true)
   };
 

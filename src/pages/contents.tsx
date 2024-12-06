@@ -23,7 +23,7 @@ function Contents() {
           >
             <Tabs.TabPane tab="Customer Details" key="1" />
             <Tabs.TabPane tab="Add Points" key="2" />
-            <Tabs.TabPane tab="Redeem with code" key="3" />
+            <Tabs.TabPane tab="Redeem" key="3" />
             <Tabs.TabPane tab="Void Points" key="4" />
             <Tabs.TabPane tab="Transactions" key="5" />
 
@@ -31,10 +31,10 @@ function Contents() {
     
           {/* Content switching based on active tab */}
           <div className="mt-4">
-          {activeKey === "1" && <CustomerList  />}
+          {activeKey === "1" && <CustomerList tabChange={setActiveKey}  />}
             {/* {activeKey === "1" && <CustomerDetail  />} */}
             {activeKey === "2" && <AddPoints tabChange={setActiveKey} />}
-            {activeKey === "3" && <RedemptionForm />}
+            {activeKey === "3" && <RedemptionForm  tabChange={setActiveKey}/>}
             {activeKey === "4" && <VoidPoints  tabChange={setActiveKey} />}
             {activeKey === "5" && <Transactions  tabChange={setActiveKey} />}
 

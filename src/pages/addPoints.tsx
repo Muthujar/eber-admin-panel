@@ -6,6 +6,7 @@ import { message } from "antd";
 function AddPoints(props:any) {
   const { state, getCustomerList, getCustomerDetails, postPurchase } =
     useCustomer();
+    const {redeemData}=state
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -51,6 +52,13 @@ function AddPoints(props:any) {
   //   console.log("Form Data:", formData);
   //   // Add logic to handle form submission
   // };
+
+  useEffect(() => {
+
+    console.log(redeemData)
+
+  }, [redeemData])
+  
   const handleGoBack = () => {
     navigate(-1); // Navigates to the previous page
   };
@@ -162,7 +170,7 @@ function AddPoints(props:any) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="email"
           >
-            Email
+            Email <span> *</span>
           </label>
           <input
             type="email"
@@ -182,7 +190,7 @@ function AddPoints(props:any) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="phone"
           >
-            Phone
+            Phone <span> *</span>
           </label>
           <input
             type="tel"
@@ -201,7 +209,7 @@ function AddPoints(props:any) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="points"
           >
-            Points
+            Points<span> *</span>
           </label>
           <input
             type="number"

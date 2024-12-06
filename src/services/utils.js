@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 
 
 
@@ -13,3 +14,22 @@ export const formatDate = (dateString) => {
   
     return `${day}/${month}/${year}`; // Return the formatted date
   };
+
+
+  export const isLoggedIn = () => {
+    return getCookie('Token') ? true : false;
+  };
+
+
+export const setCookie = (name, value, days=7) => {
+  const options = { expires: days }; // Set cookie expiration
+  Cookies.set(name, value, options);
+};
+
+export const getCookie = (name) => {
+  return Cookies.get(name); // Return the cookie value
+};
+
+export const deleteCookie = (name) => {
+  Cookies.remove(name); // Remove the cookie
+};

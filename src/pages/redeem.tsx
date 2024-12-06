@@ -3,7 +3,7 @@ import { useCustomer } from "../hooks/useCustomer";
 import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
 
-const RedemptionForm = () => {
+const RedemptionForm = (props:any) => {
   const { state, redeemRewardPoints } = useCustomer();
   const navigate = useNavigate();
   const param: any = useParams();
@@ -53,18 +53,32 @@ const RedemptionForm = () => {
     console.log("Form Data Submitted:", formData);
 
     const dataToSubmit = {
-      ...formData,
+      // ...formData,
+      redeem_code: formData.redeem_code,
+      verify_only: formData.verify_only,
+      amount: formData.amount,
     };
 
     redeemRewardPoints(dataToSubmit, { phone: phone }).then((res: any) => {
       console.log(res);
-      if (res.success) {
+
+      if (res?.success) {
         if (res.data.verify_only) {
+          setFormData({
+            ...formData,
+            verify_only: !res.data.verify_only,
+          });
+
           message.success("Redeem code verified ");
         } else {
           message.success("Reward redeemed");
-          navigate("/");
+          console.log(props)
+          props.tabChange('2')
+         param.id && navigate("/");
+
         }
+      } else {
+        message.error("error occured");
       }
     });
     // Add your submission logic here (e.g., API call)
@@ -99,6 +113,7 @@ const RedemptionForm = () => {
         </div>
 
         {/* Phone Number */}
+
         <div>
           <label
             htmlFor="phone"
@@ -118,25 +133,27 @@ const RedemptionForm = () => {
         </div>
 
         {/* POS Redeem Method */}
-        <div>
-          <label
-            htmlFor="pos_redeem_method"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Redeem Method
-          </label>
-          <select
-            id="pos_redeem_method"
-            name="pos_redeem_method"
-            value={redeemObj.pos_redeem_method}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-          >
-            <option value="">Select method</option>
-            <option value="percentage">Percentage</option>
-            <option value="amount">Amount</option>
-          </select>
-        </div>
+        {param.id && (
+          <div>
+            <label
+              htmlFor="pos_redeem_method"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Redeem Method
+            </label>
+            <select
+              id="pos_redeem_method"
+              name="pos_redeem_method"
+              value={redeemObj.pos_redeem_method}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            >
+              <option value="">Select method</option>
+              <option value="percentage">Percentage</option>
+              <option value="amount">Amount</option>
+            </select>
+          </div>
+        )}
 
         {/* POS Redeem Percentage */}
 
@@ -182,7 +199,8 @@ const RedemptionForm = () => {
 
         {/* POS Redeem SKU */}
 
-        {redeemObj.pos_redeem_sku !== "" &&
+        {param.id &&
+          redeemObj.pos_redeem_sku !== "" &&
           redeemObj.pos_redeem_sku !== null && (
             <div>
               <label
