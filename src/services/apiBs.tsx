@@ -5,11 +5,11 @@ import { deleteCookie, getCookie } from "../services/utils";
 
 // Create an Axios instance with default configurations
 const api = axios.create({
-//  baseURL: 'https://mydemov2.beautecloud.com/be/api/',
- baseURL: 'http://103.253.15.184:8003/be/api',
+ baseURL: 'https://mydemov2.beautecloud.com/be/api',
+//  baseURL: 'http://103.253.15.184:8003/be/api',
 
    // Replace with your base URL
-  timeout: 10000, // Request timeout in milliseconds
+//   timeout: 10000, // Request timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
     'referrer': "no-referrer",
@@ -65,7 +65,7 @@ api.interceptors.response.use(
 
 // Define the API service functions
 const apiBs = {
-  get: (url:any, params = {}) => api.get(url, { params }),
+  get: (url:any, params = {}) => api.get(url,  params ),
   post: (url:any, data:any) => api.post(url, data),
   put: (url:any, data:any) => api.put(url, data),
   patch: (url:any, data:any) => api.patch(url, data),

@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import moment from 'moment';
 
 
 
@@ -33,3 +34,9 @@ export const getCookie = (name) => {
 export const deleteCookie = (name) => {
   Cookies.remove(name); // Remove the cookie
 };
+
+
+export const convertToUTC=(inputDate)=> {
+  const formattedDate = moment(inputDate, "DD-MMM-YY HH:mm").utc().format("YYYY-MM-DD HH:mm:ss");
+  return formattedDate;
+}

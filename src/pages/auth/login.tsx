@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = (e:any) => {
     e?.preventDefault();
     let data = {
-      salon: 1,
+      salon: 2,
       username: username,
       password: password,
       // account_locked: false
@@ -50,19 +50,19 @@ const Login = () => {
 
   // }
 else{
-  // apiBs
-  // .post("/login", data)
-  // .then((res:any) => {
-  //   console.log(res);
-  //   if (!res || res.statusText !=='OK') return;
-  //   // dispatch(loginSuccess(res.data.data));
-  //   message.success('login successfull')
-  //   console.log(res.data.data.token)
-  //   setCookie('Token',res.data.data.token??'1234',)
-  //   setTimeout(() => window.location.reload(), 500);
+  apiBs
+  .post("/login", data)
+  .then((res:any) => {
+    console.log(res);
+    if (!res || res.statusText !=='OK') return;
+    // dispatch(loginSuccess(res.data.data));
+    message.success('login successfull')
+    console.log(res.data.data.token)
+    setCookie('Token',res.data.data.token??'1234',)
+    setTimeout(() => window.location.reload(), 500);
 
 
-  // })
+  })
   // .catch((err:any) => {
   //   console.log(err, "err");
   //   let pass =err?.response?.data?.message?? err.message
@@ -71,8 +71,8 @@ else{
   //   return message.error(pass);
 
   // });
-     setCookie('Token','1234',)
-    setTimeout(() => window.location.reload(), 500);
+    //  setCookie('Token','1234',)
+    // setTimeout(() => window.location.reload(), 500);
 
 }
 

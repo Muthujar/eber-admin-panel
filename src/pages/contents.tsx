@@ -51,7 +51,7 @@ function Contents() {
         </div>
       </div>
 
-      <div onClick={() => logout()}>Logout</div>
+      {/* <div onClick={() => logout()}>Logout</div> */}
     </div>
   );
 }

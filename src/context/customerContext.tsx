@@ -7,6 +7,8 @@ import {
   getTransactions,
   getBsCustomer,
   voidTransaction,
+  createEberCustomer,
+  getBsTransactions,
 } from "../services/customerService";
 import { message } from "antd";
 
@@ -21,7 +23,9 @@ interface CustomerState {
   customers: Customer[];
   bsCustomer:[],
   transactions: [];
+  Bstransactions: [];
   total: number;
+  transTotal:number
   customerDetails: Customer | null;
   loading: boolean;
   error: string | null;
@@ -39,6 +43,7 @@ interface CustomerAction {
     | "REDEEM_SUCCESS"
     |"VOID_SUCCESS"
     |"FETCH_TRANSACTION_SUCCESS"
+    |"FETCH_BS_TRANSACTION_SUCCESS"
     |"FETCH_BS_LIST_SUCCESS"
   payload?: any;
 }
@@ -47,12 +52,14 @@ const initialState: CustomerState = {
   customers: [],
   bsCustomer:[],
   total: 0,
+  transTotal:0,
   customerDetails: null,
   loading: false,
   error: null,
   success: null,
   redeemData:null,
-  transactions:[]
+  transactions:[],
+  Bstransactions:[]
 
 };
 
@@ -75,15 +82,23 @@ const customerReducer = (
           ...state,
           loading: false,
           bsCustomer: action.payload.data,
-          total: action.payload.total,
+          total: action.payload.data.length,
         };
       case "FETCH_TRANSACTION_SUCCESS":
         return {
           ...state,
           loading: false,
           transactions: action.payload.data,
-          total: action.payload.total,
+          transTotal: action.payload.total,
         };
+        case "FETCH_BS_TRANSACTION_SUCCESS":
+          console.log(action.payload)
+          return {
+            ...state,
+            loading: false,
+            Bstransactions: action.payload.dataList,
+            transTotal: action.payload.meta?.pagination?.total,
+          };
     case "FETCH_DETAILS_SUCCESS":
       return { ...state, loading: false, customerDetails: action.payload };
     case "POST_PURCHASE_SUCCESS":
@@ -129,6 +144,22 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
       const data = await getTransactions(params);
       console.log(data);
       dispatch({ type: "FETCH_TRANSACTION_SUCCESS", payload: data });
+    } catch (error: any) {
+      dispatch({ type: "FETCH_ERROR", payload: error.message });
+    }
+  };
+
+
+  const FetchBsTransactionList = async (params: {
+    // page?: number;
+    // limit?: number;
+    // display_name?: string;
+  }) => {
+    dispatch({ type: "FETCH_LIST_START" });
+    try {
+      const data = await getBsTransactions(params);
+      console.log(data);
+      dispatch({ type: "FETCH_BS_TRANSACTION_SUCCESS", payload: data.data });
     } catch (error: any) {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
@@ -218,16 +249,26 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchBsCustomer = async (
-    body: {},
-    params: {
-      phone: number;
-      page?: number;
-      limit?: number;
-    }
+    params:{}
   ) => {
     dispatch({ type: "FETCH_LIST_START" });
     try {
-      const data = await getBsCustomer(params);
+    const data = await getBsCustomer(params);
+      console.log(data);
+      dispatch({ type: "FETCH_BS_LIST_SUCCESS", payload: data });
+      return data
+    } catch (error: any) {
+      dispatch({ type: "FETCH_ERROR", payload: error.message });
+    }
+  };
+
+
+  const createEberAcc = async (
+    body:{}
+  ) => {
+    dispatch({ type: "FETCH_LIST_START" });
+    try {
+    const data = await createEberCustomer(body);
       console.log(data);
       dispatch({ type: "FETCH_BS_LIST_SUCCESS", payload: data });
       return data
@@ -239,7 +280,7 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CustomerContext.Provider
-      value={{ state, voidTransac,getCustomerList, getCustomerDetails, postPurchase,redeemRewardPoints,FetchTransactionList,fetchBsCustomer }}
+      value={{ state, voidTransac,getCustomerList, getCustomerDetails, postPurchase,redeemRewardPoints,FetchTransactionList,fetchBsCustomer,createEberAcc,FetchBsTransactionList }}
     >
       {children}
     </CustomerContext.Provider>
