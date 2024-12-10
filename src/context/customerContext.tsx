@@ -9,6 +9,7 @@ import {
   voidTransaction,
   createEberCustomer,
   getBsTransactions,
+  adjustPointsCus,
 } from "../services/customerService";
 import { message } from "antd";
 
@@ -21,16 +22,17 @@ interface Customer {
 
 interface CustomerState {
   customers: Customer[];
-  bsCustomer:[],
+  bsCustomer: [];
   transactions: [];
   Bstransactions: [];
   total: number;
-  transTotal:number
+  transTotal: number;
   customerDetails: Customer | null;
   loading: boolean;
   error: string | null;
   success: string | null;
-  redeemData:any
+  redeemData: any;
+  tab: any;
 }
 
 interface CustomerAction {
@@ -41,26 +43,30 @@ interface CustomerAction {
     | "POST_PURCHASE_SUCCESS"
     | "FETCH_ERROR"
     | "REDEEM_SUCCESS"
-    |"VOID_SUCCESS"
-    |"FETCH_TRANSACTION_SUCCESS"
-    |"FETCH_BS_TRANSACTION_SUCCESS"
-    |"FETCH_BS_LIST_SUCCESS"
+    | "VOID_SUCCESS"
+    | "FETCH_TRANSACTION_SUCCESS"
+    | "FETCH_BS_TRANSACTION_SUCCESS"
+    | "FETCH_BS_LIST_SUCCESS"
+    |"CHANGE_TAB"
+    |"RESET_STATE"
+    |"ADJUST_SUCCESS"
+
   payload?: any;
 }
 
 const initialState: CustomerState = {
   customers: [],
-  bsCustomer:[],
+  bsCustomer: [],
   total: 0,
-  transTotal:0,
+  transTotal: 0,
   customerDetails: null,
   loading: false,
   error: null,
   success: null,
-  redeemData:null,
-  transactions:[],
-  Bstransactions:[]
-
+  redeemData: null,
+  transactions: [],
+  Bstransactions: [],
+  tab: '1',
 };
 
 const customerReducer = (
@@ -77,38 +83,51 @@ const customerReducer = (
         customers: action.payload.data,
         total: action.payload.total,
       };
-      case "FETCH_BS_LIST_SUCCESS":
-        return {
-          ...state,
-          loading: false,
-          bsCustomer: action.payload.data,
-          total: action.payload.data.length,
-        };
-      case "FETCH_TRANSACTION_SUCCESS":
-        return {
-          ...state,
-          loading: false,
-          transactions: action.payload.data,
-          transTotal: action.payload.total,
-        };
-        case "FETCH_BS_TRANSACTION_SUCCESS":
-          console.log(action.payload)
-          return {
-            ...state,
-            loading: false,
-            Bstransactions: action.payload.dataList,
-            transTotal: action.payload.meta?.pagination?.total,
-          };
+    case "FETCH_BS_LIST_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        bsCustomer: action.payload.data,
+        total: action.payload.data.length,
+      };
+    case "FETCH_TRANSACTION_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        transactions: action.payload.data,
+        transTotal: action.payload.total,
+      };
+
+      case "ADJUST_SUCCESS":
+        return { ...state, loading: false, success: action.payload };
+
+    case "FETCH_BS_TRANSACTION_SUCCESS":
+      console.log(action.payload);
+      return {
+        ...state,
+        loading: false,
+        Bstransactions: action.payload.dataList,
+        transTotal: action.payload.meta?.pagination?.total,
+      };
     case "FETCH_DETAILS_SUCCESS":
       return { ...state, loading: false, customerDetails: action.payload };
     case "POST_PURCHASE_SUCCESS":
       return { ...state, loading: false, customerDetails: action.payload };
     case "REDEEM_SUCCESS":
       return { ...state, loading: false, redeemData: action.payload };
-      case "VOID_SUCCESS":
-        return { ...state, loading: false, success: action.payload };
+    case "VOID_SUCCESS":
+      return { ...state, loading: false, success: action.payload };
     case "FETCH_ERROR":
       return { ...state, loading: false, error: action.payload };
+      case "CHANGE_TAB":
+        return {
+          ...state,
+          tab: action.payload, // Update the `tab` value
+        };
+        case "RESET_STATE":
+          return {
+            ...initialState, // Reset state to initial values
+          };
     default:
       return state;
   }
@@ -119,6 +138,13 @@ const CustomerContext = createContext<any>(null);
 export const CustomerProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(customerReducer, initialState);
 
+  const changeTab = (item: any) => {
+    dispatch({ type: "CHANGE_TAB", payload: item });
+  };
+
+  const resetState = () => {
+    dispatch({ type: "RESET_STATE" });
+  };
   const getCustomerList = async (params: {
     page?: number;
     limit?: number;
@@ -149,7 +175,6 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-
   const FetchBsTransactionList = async (params: {
     // page?: number;
     // limit?: number;
@@ -164,7 +189,6 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
   };
-
 
   const getCustomerDetails = async (query: {
     email?: string;
@@ -203,8 +227,7 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
       console.log(data);
 
       dispatch({ type: "POST_PURCHASE_SUCCESS", payload: data });
-      return data
-
+      return data;
     } catch (error: any) {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
@@ -223,7 +246,7 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
       const data = await redeemRewards(body, params);
       console.log(data);
       dispatch({ type: "REDEEM_SUCCESS", payload: data });
-      return data
+      return data;
     } catch (error: any) {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
@@ -239,48 +262,69 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
   ) => {
     dispatch({ type: "FETCH_LIST_START" });
     try {
-      const data = await voidTransaction({},params);
+      const data = await voidTransaction({}, params);
       console.log(data);
       dispatch({ type: "VOID_SUCCESS", payload: data });
-      return data
+      return data;
     } catch (error: any) {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
   };
 
-  const fetchBsCustomer = async (
-    params:{}
-  ) => {
+  const fetchBsCustomer = async (params: {}) => {
     dispatch({ type: "FETCH_LIST_START" });
     try {
-    const data = await getBsCustomer(params);
+      const data = await getBsCustomer(params);
       console.log(data);
       dispatch({ type: "FETCH_BS_LIST_SUCCESS", payload: data });
-      return data
+      return data;
     } catch (error: any) {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
   };
 
-
-  const createEberAcc = async (
-    body:{}
-  ) => {
+  const createEberAcc = async (body: {}) => {
     dispatch({ type: "FETCH_LIST_START" });
     try {
-    const data = await createEberCustomer(body);
+      const data = await createEberCustomer(body);
       console.log(data);
       dispatch({ type: "FETCH_BS_LIST_SUCCESS", payload: data });
-      return data
+      return data;
     } catch (error: any) {
       dispatch({ type: "FETCH_ERROR", payload: error.message });
     }
   };
 
+
+  const adjustPoints = async (body: {}) => {
+    dispatch({ type: "FETCH_LIST_START" });
+    try {
+      const data = await adjustPointsCus(body);
+      console.log(data);
+      dispatch({ type: "ADJUST_SUCCESS", payload: data });
+      return data;
+    } catch (error: any) {
+      dispatch({ type: "FETCH_ERROR", payload: error.message });
+    }
+  };
 
   return (
     <CustomerContext.Provider
-      value={{ state, voidTransac,getCustomerList, getCustomerDetails, postPurchase,redeemRewardPoints,FetchTransactionList,fetchBsCustomer,createEberAcc,FetchBsTransactionList }}
+      value={{
+        state,
+        changeTab,
+        voidTransac,
+        getCustomerList,
+        getCustomerDetails,
+        postPurchase,
+        redeemRewardPoints,
+        FetchTransactionList,
+        fetchBsCustomer,
+        createEberAcc,
+        FetchBsTransactionList,
+        resetState,
+        adjustPoints
+      }}
     >
       {children}
     </CustomerContext.Provider>

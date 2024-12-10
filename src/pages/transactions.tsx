@@ -291,7 +291,7 @@ function Transactions(props: any) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-      {record.type !== "void" && !record.void && (
+          {record.type !== "void" && !record.void && (
             <Link to={`/voidTransaction/${record.id}`}>
               <Button type="primary">Void{record.name}</Button>
             </Link>
@@ -525,10 +525,15 @@ function Transactions(props: any) {
     setSize(e?.target?.value);
   };
 
+  const handleAddPoints = () => {
+    // filters.search=''
+    navigate("./addpoints");
+  };
+
   return (
     <div>
       {/* <h2>Customer List</h2> */}
-      <div className="flex items-center justify-between">
+      <div className="flex  items-center justify-between">
         <div className="border  mb-[10px]  relative w-[250px] border-[#e9ebec] text-[14px]">
           <input
             className="py-[8px] pl-[40px] pr-[14.4px] rounded w-full focus:outline-none focus:border-blue-500 border"
@@ -540,7 +545,17 @@ function Transactions(props: any) {
             className="w-[20px] absolute left-[12px] top-[50%] transform -translate-y-1/2"
           />
         </div>
-        <div>
+
+        <div className="flex  ">
+          <div className="">
+            <Button
+              onClick={() => handleAddPoints()}
+              type="primary"
+              className="mr-[20px]"
+            >
+              Issue Purchase points Manually
+            </Button>
+          </div>
           <Radio.Group
             value={size}
             onChange={onChange}

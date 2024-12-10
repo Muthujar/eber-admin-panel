@@ -149,8 +149,8 @@ function AddPoints(props:any) {
   };
 
   const handleCancel = () => {
-    navigate("/");
-    props.tabChange('1')
+    navigate(-1);
+    // props.tabChange('1')
 
     // const { name, value, type, checked } = e.target;
     // setFormData({
@@ -160,7 +160,7 @@ function AddPoints(props:any) {
   };
 
   return (
-    <div className="px-4 pb-4 rounded-md shadow-sm  bg-white  ">
+    <div className="px-4 pb-4 rounded-md shadow-sm py-2 bg-white  ">
       {/* <div className="col-span-3 flex justify-end">
         <button
           onClick={() => handleGoBack()}
@@ -215,7 +215,7 @@ function AddPoints(props:any) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="points"
           >
-            Points<span> *</span>
+            Points
           </label>
           <input
             type="number"
@@ -235,6 +235,7 @@ function AddPoints(props:any) {
             htmlFor="amount"
           >
             Amount
+            <span> *</span>
           </label>
           <input
             type="number"

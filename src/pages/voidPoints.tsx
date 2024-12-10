@@ -39,7 +39,7 @@ export const VoidPoints = (props:any) => {
           message.success("transaction voided  ");
 
           navigate("/");
-          props.tabChange('5')
+          // props.tabChange('5')
         
       }
     });

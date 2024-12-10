@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 // import { useCustomerList } from '../hooks/useCustomerList';
 import { useCustomer } from "../hooks/useCustomer";
 import { useDebounce } from "../hooks/useDebounce";
-import { Empty, message, Space, Table, Tag } from "antd";
+import { Button, Empty, message, Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import search from "../assets/icons/search.svg";
 import { Link, useNavigate } from "react-router-dom";
@@ -122,7 +122,7 @@ const CustomerList = (props: any) => {
         <Space size="middle">
           {/* <a onClick={() => navigateDetails(record)}>{text || "-"}</a> */}
 
-          <a onClick={() => navigateDetails(record)}>View More {record.name}</a>
+          <Button  type="primary" onClick={() => navigateDetails(record)}>View More {record.name}</Button>
         </Space>
       ),
     },
@@ -180,9 +180,9 @@ const CustomerList = (props: any) => {
         <Space size="middle">
           {/* <a onClick={() => navigateDetails(record)}>{text || "-"}</a> */}
 
-          <a onClick={() => createEber(record)}>
+          <Button type="primary" onClick={() => createEber(record)}>
             Create eber account {record.name}
-          </a>
+          </Button>
         </Space>
       ),
     },
@@ -276,7 +276,7 @@ const CustomerList = (props: any) => {
     console.log(customers, "cs");
     console.log(bsCustomer, "bs", total);
 
-    if (customers.length > 0) {
+    if (customers?.length > 0) {
       const cusList = customers?.map((item: any) => ({
         ...item,
         key: item.id, // Set `key` for table rows

@@ -1,77 +1,59 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import AddPoints from "./addPoints";
-import CustomerDetail from "./CustomerDetailPage";
-import Redeem from "./redeem";
+import React, { useEffect } from "react";
 import { Tabs } from "antd";
-import RedemptionForm from "./redeem";
 import { VoidPoints } from "./voidPoints";
 import Transactions from "./transactions";
 import CustomerList from "./customerList";
 import { deleteCookie } from "../services/utils";
+import { useCustomer } from "../hooks/useCustomer";
+import RedemptionForm from "./redeem";
 
 function Contents() {
-  const [activeKey, setActiveKey] = useState("1"); // Manage active tab state
+  const { state, changeTab } = useCustomer();
+  const { tab } = state; // Extract tab state from global state
+  console.log(tab);
+
+  useEffect(()=>{
+console.log(tab)
+
+
+  },[tab])
 
   const logout = () => {
     deleteCookie("Token");
-    window.location.reload();
+    window.location.reload(); // Reload the app to clear the session
   };
 
   return (
-    <div className="px-4 ">
+    <div className="px-4">
       <div>
         {/* Tabs for navigation */}
         <Tabs
-          activeKey={activeKey}
-          onChange={(key) => setActiveKey(key)} // Update active tab
+          activeKey={tab}
+          onChange={(key) => {
+            if (key === "5") {
+              logout(); // Handle logout directly
+            } else {
+              changeTab(key); // Change tab state
+            }
+          }}
         >
           <Tabs.TabPane tab="Customer Details" key="1" />
-          <Tabs.TabPane tab="Add Points" key="2" />
-          <Tabs.TabPane tab="Redeem" key="3" />
-          <Tabs.TabPane tab="Void Points" key="4" />
-          <Tabs.TabPane tab="Transactions" key="5" />
-          <Tabs.TabPane tab="Logout" key="6" />
+          <Tabs.TabPane tab="Redeem" key="2" />
+          <Tabs.TabPane tab="Void Points" key="3" />
+          <Tabs.TabPane tab="Transactions" key="4" />
+          <Tabs.TabPane tab="Logout" key="5" />
         </Tabs>
 
         {/* Content switching based on active tab */}
         <div className="mt-4">
-          {activeKey === "1" && <CustomerList tabChange={setActiveKey} />}
-          {/* {activeKey === "1" && <CustomerDetail  />} */}
-          {activeKey === "2" && <AddPoints tabChange={setActiveKey} />}
-          {activeKey === "3" && <RedemptionForm tabChange={setActiveKey} />}
-          {activeKey === "4" && <VoidPoints tabChange={setActiveKey} />}
-          {activeKey === "5" && <Transactions tabChange={setActiveKey} />}
-          {activeKey === "6" && (
-            <>
-              {logout()}
-              <span>Logging out...</span> {/* Optional: Add user feedback */}
-            </>
-          )}
+          {tab === "1" && <CustomerList />}
+          {tab === "2" && <RedemptionForm />}
+          {tab === "3" && <VoidPoints />}
+          {tab === "4" && <Transactions />}
         </div>
       </div>
-
-      {/* <div onClick={() => logout()}>Logout</div> */}
     </div>
   );
 }
 
 export default Contents;
-//   return (
-//     <div>
-
-//        <Routes>
-//          {/* <Route path="/" element={<HomePage/>} /> */}
-//          {/* <Route path="/login" element={<LoginPage />} /> */}
-//          {/* <Route path="/customer/:email" element={<CustomerDetail />} /> */}
-//          <Route path="/" element={<CustomerDetail />} />
-//          <Route path="/addpoints" element={<AddPoints />} />
-//          <Route path="/redeem" element={<Redeem />} />
-
-//        </Routes>
-
-//     </div>
-//   )
-// }
-
-// export default Contents

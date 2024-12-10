@@ -23,14 +23,11 @@ export const fetchCustomerDetails = async (query: {
 
 export const postPurchaseDetails = async (body: {}, query: {}) => {
   try {
-
-  const response = await apiClient.post("integration/issue_point", body, {
-    params: query,
-  });
-  return response.data;
-}
-
-  catch (error: any) {
+    const response = await apiClient.post("integration/issue_point", body, {
+      params: query,
+    });
+    return response.data;
+  } catch (error: any) {
     console.log(error);
 
     if (error.response) {
@@ -71,12 +68,73 @@ export const redeemRewards = async (body: {}, query: {}) => {
 };
 
 export const voidTransaction = async (body: {}, query: {}) => {
-  const response = await apiClient.post(
-    "integration/point_transaction/void",
-    body,
-    { params: query }
-  );
-  return response.data;
+  try {
+    const response = await apiClient.post(
+      "integration/point_transaction/void",
+      body,
+      { params: query }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data) {
+      const errorData = error.response.data;
+
+      // Check for validation error
+      if (errorData.errorDetails?.error_type) {
+        const validationErrors = errorData.errorDetails.error;
+        const formattedErrors = Object.entries(validationErrors)
+          .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+          .join("; ");
+
+        console.error("Validation Error:", formattedErrors);
+        message.error(formattedErrors);
+        throw new Error(`Validation failed: ${formattedErrors}`);
+      }
+
+      // General API error
+      throw new Error(
+        errorData.message || "An error occurred while creating the customer."
+      );
+    }
+
+    // Fallback error message
+    throw new Error(error.message || "Unknown error occurred.");
+  }
+};
+
+export const adjustPointsCus = async (body: {}) => {
+  try {
+    const response = await apiClient.post(
+      "point/adjust",
+      body
+      // { params: query }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data) {
+      const errorData = error.response.data;
+
+      // Check for validation error
+      if (errorData.errorDetails?.error_type) {
+        const validationErrors = errorData.errorDetails.error;
+        const formattedErrors = Object.entries(validationErrors)
+          .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+          .join("; ");
+
+        console.error("Validation Error:", formattedErrors);
+        message.error(formattedErrors);
+        throw new Error(`Validation failed: ${formattedErrors}`);
+      }
+
+      // General API error
+      throw new Error(
+        errorData.message || "An error occurred while creating the customer."
+      );
+    }
+
+    // Fallback error message
+    throw new Error(error.message || "Unknown error occurred.");
+  }
 };
 
 export const getTransactions = async (params: {
@@ -148,12 +206,8 @@ export const createEberCustomer = async (
       body
     );
     return response.data;
-  } 
-  catch (error: any) {
+  } catch (error: any) {
     console.log(error);
-
-    if (error.response) {
-    }
 
     // Extract and handle specific errors
     if (error.response?.data) {

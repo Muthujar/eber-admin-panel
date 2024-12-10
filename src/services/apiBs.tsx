@@ -49,7 +49,7 @@ api.interceptors.response.use(
         deleteCookie('Token'); // Example of token removal
         
         if (!getCookie('Token')) {
-            window.location.href = '/login';
+            window.location.href = '/';
           }      }
     } else if (error.request) {
             message.error('Could not connect to the server. Please try again later')

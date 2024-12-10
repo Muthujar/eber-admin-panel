@@ -221,7 +221,9 @@ const HomePage = () => {
           <Route path="/redeem/:id" element={<RedemptionForm />} />
           <Route path="/voidTransaction/:id" element={<VoidPoints />} />
 
+          <Route path="/addpoints" element={<AddPoints />} />
           <Route path="/redeem" element={<RedemptionForm />} />
+
           <Route path="/ebercustomerDetail/:phone" element={<CustomerDetail/>} />
 
         </Routes>

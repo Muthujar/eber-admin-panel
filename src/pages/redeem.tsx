@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useCustomer } from "../hooks/useCustomer";
 import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
 
-const RedemptionForm = (props:any) => {
+const RedemptionForm = (props: any) => {
   const { state, redeemRewardPoints } = useCustomer();
   const navigate = useNavigate();
   const param: any = useParams();
@@ -27,6 +27,14 @@ const RedemptionForm = (props:any) => {
     note: "",
   });
 
+
+  useEffect(()=>{
+
+    if (param.id && !formData.redeem_code) navigate(-1)
+
+
+  },[])
+
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
@@ -40,7 +48,9 @@ const RedemptionForm = (props:any) => {
   };
 
   const handleCancel = () => {
-    navigate("/");
+   if (param.id)navigate(-1);
+   else navigate('/')
+
     // const { name, value, type, checked } = e.target;
     // setFormData({
     //   ...formData,
@@ -59,37 +69,33 @@ const RedemptionForm = (props:any) => {
       amount: formData.amount,
     };
 
-    redeemRewardPoints(dataToSubmit, { phone: phone }).then((res: any) => {
-      console.log(res);
+    redeemRewardPoints(dataToSubmit, { phone: phone })
+      .then((res: any) => {
+        console.log(res);
 
-      if (res?.success) {
-        if (res.data.verify_only) {
-          setFormData({
-            ...formData,
-            verify_only: !res.data.verify_only,
-          });
+        if (res?.success) {
+          if (res.data.verify_only) {
+            setFormData({
+              ...formData,
+              verify_only: !res.data.verify_only,
+            });
 
-          message.success("Redeem code verified ");
+            message.success("Redeem code verified ");
+          } else {
+            message.success("Reward redeemed");
+            console.log(props);
+            // props.tabChange("2");
+            param.id && navigate("/");
+          }
         } else {
-          message.success("Reward redeemed");
-          console.log(props)
-          props.tabChange('2')
-         param.id && navigate("/");
-
+          message.error("error occured");
         }
-      } 
-      else{
-        message.error("error occured");
-
-      }
-  
-    })
-    .catch((error:any)=>{
-      const err=error?.errorDetails?.error?.exception[0] 
-        console.log(error)
-        message.error(error??"error occured");
-
-    })
+      })
+      .catch((error: any) => {
+        const err = error?.errorDetails?.error?.exception[0];
+        console.log(error);
+        message.error(error ?? "error occured");
+      });
   };
 
   return (
@@ -117,6 +123,7 @@ const RedemptionForm = (props:any) => {
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Enter redeem code"
+            disabled={param.id}
           />
         </div>
 
@@ -137,6 +144,7 @@ const RedemptionForm = (props:any) => {
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Enter phone number"
+            disabled
           />
         </div>
 
@@ -154,6 +162,7 @@ const RedemptionForm = (props:any) => {
               name="pos_redeem_method"
               value={redeemObj.pos_redeem_method}
               onChange={handleChange}
+              disabled
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             >
               <option value="">Select method</option>
@@ -175,6 +184,7 @@ const RedemptionForm = (props:any) => {
             </label>
             <input
               type="number"
+              disabled
               id="pos_redeem_percentage"
               name="pos_redeem_percentage"
               value={redeemObj.pos_redeem_percentage}
@@ -197,6 +207,7 @@ const RedemptionForm = (props:any) => {
               type="number"
               id="amount"
               name="amount"
+              disabled
               value={redeemObj.pos_redeem_amount}
               onChange={handleChange}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"

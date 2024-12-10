@@ -3,12 +3,88 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCustomer } from "../hooks/useCustomer";
 import { message } from "antd";
 import search from "../assets/icons/search.svg";
+import { Flex, Spin } from "antd";
+import { Modal, Form, InputNumber, Select, Button } from "antd";
+
+const { Option } = Select;
+
+const AdjustPointsModal = ({ visible, onCancel, onSubmit }: any) => {
+  const [form] = Form.useForm();
+
+  const handleSubmit = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        onSubmit(values); // Call the onSubmit function with form values
+        form.resetFields(); // Clear the form
+      })
+      .catch((info) => {
+        console.error("Validation Failed:", info);
+      });
+  };
+
+  return (
+    <Modal
+      title="Adjust Points"
+      visible={visible}
+      onCancel={onCancel}
+      onOk={handleSubmit}
+      okText="Submit"
+      cancelText="Cancel"
+    >
+      <Form form={form} layout="vertical" name="adjust_points_form">
+        {/* Action */}
+        <Form.Item
+          name="action"
+          label="Action"
+          rules={[
+            {
+              required: true,
+              message: "Please select an action",
+            },
+          ]}
+        >
+          <Select placeholder="Select action">
+            <Option value="add">Add</Option>
+            <Option value="deduct">Deduct</Option>
+          </Select>
+        </Form.Item>
+
+        {/* Points */}
+        <Form.Item
+          name="points"
+          label="Points"
+          rules={[
+            {
+              required: true,
+              message: "Please enter the points amount",
+            },
+          ]}
+        >
+          <InputNumber
+            placeholder="Enter points"
+            style={{ width: "100%" }}
+            min={0}
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
 
 const CustomerDetail = () => {
   const { phone } = useParams();
-  const { state, getCustomerList, getCustomerDetails, postPurchase } =
-    useCustomer();
-  const { customers, total, customerDetails, error, loading } = state;
+  const [visible, setVisible] = useState(false);
+
+  const {
+    state,
+    getCustomerList,
+    adjustPoints,
+    getCustomerDetails,
+    resetState,
+    postPurchase,
+  } = useCustomer();
+  const { customers, total, success, customerDetails, error, loading } = state;
   const [isloading, setIsLoading] = useState(loading);
   const navigate = useNavigate();
 
@@ -20,20 +96,12 @@ const CustomerDetail = () => {
     phone: "",
   });
 
-
   useEffect(() => {
-    console.log(phone)
-    if(phone){
-    getCustomerDetails({ phone:phone, list_redeemable: 1 });
-
-
+    console.log(phone);
+    if (phone ) {
+      !visible && getCustomerDetails({ phone: phone, list_redeemable: 1 });
     }
-    
-  
- 
-
-  }, [])
-  
+  }, [visible]);
 
   useEffect(() => {
     if (customerDetails) {
@@ -49,6 +117,15 @@ const CustomerDetail = () => {
       message.error(error);
     }
   }, [customerDetails, error]);
+
+  const handleOpen = () => setVisible(true);
+  const handleClose = () =>{
+    
+    setVisible(false);
+    // getCustomerDetails({ phone: phone, list_redeemable: 1 });
+
+
+  }
 
   const handleChange = (e: any) => {
     const searchValue = e.target.value; // Assuming it's from an input field
@@ -74,8 +151,44 @@ const CustomerDetail = () => {
   const handleRedeem = (item: any, index: any) => {
     console.log(item);
     navigate(`/redeem/${index}`);
-    
+
     // setIssueMode(true)
+  };
+
+  const handleCancel = () => {
+    setCustomer([]);
+    resetState();
+    navigate("/");
+
+    // setIssueMode(true)
+  };
+
+  const handleAdjustPoints = () => {
+    handleOpen();
+    // navigate(`/redeem/${index}`);
+
+    // setIssueMode(true)
+  };
+
+  const handleSubmit = (data: any) => {
+    console.log("Form Data:", data);
+    console.log(" Data:", customer);
+
+    const formData = {
+      ...data,
+      user_id: customer.member.user_id,
+      notify: 1,
+    };
+
+    adjustPoints(formData).then((res: any) => {
+      if (res.success) {
+        message.success("Points adjusted successfully ");
+
+        handleClose();
+      }
+    });
+
+    // Perform API call or other logic
   };
 
   // Loading state or empty data handling
@@ -89,7 +202,7 @@ const CustomerDetail = () => {
 
   return (
     <div className="pb-[30px] h-full">
-      <div className="relative mb-[16px] w-full flex   ">
+      <div className="relative mb-[16px] w-full flex items-center">
         <div className="w-[400px] ml-[16px] flex justify-between items-center border border-[#e9ebec] rounded-lg overflow-hidden focus-within:ring focus-within:ring-blue-300">
           <img
             src={search}
@@ -108,6 +221,23 @@ const CustomerDetail = () => {
           >
             Search
           </button>
+        </div>
+        <div className="flex ml-auto gap-4 mr-4">
+          <Button
+            onClick={() => handleCancel()}
+            className="px-6 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring focus:ring-gray-200"
+          >
+            Cancel
+          </Button>
+          <Button onClick={() => handleAdjustPoints()} type="primary">
+            Adjust Points
+          </Button>
+
+          <AdjustPointsModal
+            visible={visible}
+            onCancel={handleClose}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
 
@@ -177,7 +307,7 @@ const CustomerDetail = () => {
             {/* Redeemable Rewards Section */}
             <div>
               <h2 className="text-lg font-medium text-gray-700 mt-4">
-                Rewards Available:
+                Standard Rewards Available:
               </h2>
               <div className="grid grid-cols-2 gap-3 mt-2">
                 {customer?.redeemable_list?.map((item: any, i: any) => {
@@ -220,6 +350,14 @@ const CustomerDetail = () => {
               </div>
             </div>
           </div>
+        </div>
+      ) : loading ? (
+        <div className="w-[100%] flex justify-center h-[50vh]">
+          <Flex align="center" gap="middle">
+            {/* <Spin size="small" /> */}
+            {/* <Spin /> */}
+            <Spin size="large" />
+          </Flex>
         </div>
       ) : (
         <div className="flex items-center justify-center w-full h-[400px] p-4 rounded-md shadow-sm bg-white">
