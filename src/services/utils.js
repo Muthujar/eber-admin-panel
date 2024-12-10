@@ -40,3 +40,11 @@ export const convertToUTC=(inputDate)=> {
   const formattedDate = moment(inputDate, "DD-MMM-YY HH:mm").utc().format("YYYY-MM-DD HH:mm:ss");
   return formattedDate;
 }
+
+export const omitEmptyKeys = (queryObject)=> {
+  return Object.fromEntries(
+    Object.entries(queryObject).filter(
+      ([_, value]) => value !== null && value !== undefined && value !== ""
+    )
+  );
+};

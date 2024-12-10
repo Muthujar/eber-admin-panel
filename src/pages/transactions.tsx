@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Button, message, Radio, Space, Table, Tag } from "antd";
+import {
+  Button,
+  DatePicker,
+  Input,
+  message,
+  Radio,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import type { RadioChangeEvent, TableProps } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import search from "../assets/icons/search.svg";
 import { useCustomer } from "../hooks/useCustomer";
 import { useDebounce } from "../hooks/useDebounce";
-import { convertToUTC, formatDate } from "../services/utils";
+import { convertToUTC, formatDate, omitEmptyKeys } from "../services/utils";
+import moment from "moment";
 
 // const columns: TableProps<any>["columns"] = [
 //     {
@@ -238,6 +248,13 @@ function Transactions(props: any) {
       //   }
       // },
     },
+    {
+      title: "Common Transaction No",
+      dataIndex: "transaction_no",
+      key: "transaction_no",
+      render: (voidStatus: boolean) => <span>{voidStatus ?? "-"}</span>,
+
+    },
 
     {
       title: "Points Earned",
@@ -410,6 +427,7 @@ function Transactions(props: any) {
     transac_no: "",
     cust_name: "",
     sales_staffs: "",
+    transaction_no:''
   });
   const debouncedSearchTerm = useDebounce(filters.display_name, 2000); // Debounce the search term
   const debouncedBsSearchTerm = useDebounce(filters.cust_name, 2000); // Debounce the search term
@@ -419,9 +437,9 @@ function Transactions(props: any) {
     console.log(state);
     setIsLoading(true);
     if (size === "eber") {
-      FetchTransactionList(filters); // Fetch first page on mount
+      FetchTransactionList(omitEmptyKeys(filters)); // Fetch first page on mount
     } else {
-      FetchBsTransactionList(filters); // Fetch first page on mount
+      FetchBsTransactionList(omitEmptyKeys(filters)); // Fetch first page on mount
     }
     // getCustomerList()
     // getCustomerDetails({ email: "muthu98wic@gmail.com" });
@@ -444,20 +462,20 @@ function Transactions(props: any) {
     } else setBsTransactionList(Bstransactions);
   }, [transactions, Bstransactions]);
 
-  const handleSearch = (e: any) => {
-    const searchValue = e.target.value; // Assuming it's from an input field
-    // dispatch(setLoading(true));
+  const handleSearch = () => {
     setIsLoading(true);
     if (size === "eber") {
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        display_name: searchValue,
-      }));
+      // setFilters((prevFilters) => ({
+      //   ...prevFilters,
+      //   transaction_no: searchValue,
+      // }));
+      FetchTransactionList(filters)
     } else {
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        search: searchValue,
-      }));
+      FetchBsTransactionList(filters); // Fetch first page on mount
+      // setFilters((prevFilters) => ({
+      //   ...prevFilters,
+      //   search: searchValue,
+      // }));
     }
   };
 
@@ -515,7 +533,7 @@ function Transactions(props: any) {
     }
   };
 
-  const onChange = (e: RadioChangeEvent) => {
+  const onRadioChange = (e: RadioChangeEvent) => {
     // filters.search=''
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -530,58 +548,108 @@ function Transactions(props: any) {
     navigate("./addpoints");
   };
 
+  const handleFilterChange = (key: string, value: any) => {
+
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+
+  const handleclear = (key: string, value: any) => {
+    
+    setFilters((prev) => ({ ...prev, [key]: '' }));
+    handleSearch()
+  };
+
   return (
     <div>
       {/* <h2>Customer List</h2> */}
-      <div className="flex  items-center justify-between">
-        <div className="border  mb-[10px]  relative w-[250px] border-[#e9ebec] text-[14px]">
-          <input
-            className="py-[8px] pl-[40px] pr-[14.4px] rounded w-full focus:outline-none focus:border-blue-500 border"
-            placeholder="Search Transactions"
-            onChange={(e) => handleSearch(e)}
-          />
-          <img
-            src={search}
-            className="w-[20px] absolute left-[12px] top-[50%] transform -translate-y-1/2"
-          />
-        </div>
 
-        <div className="flex  ">
-          <div className="">
-            <Button
-              onClick={() => handleAddPoints()}
-              type="primary"
-              className="mr-[20px]"
-            >
-              Issue Purchase points Manually
-            </Button>
-          </div>
-          <Radio.Group
-            value={size}
-            onChange={onChange}
-            style={{ marginBottom: 16, minWidth: "160px" }}
-          >
-            <Radio.Button value="eber">Eber</Radio.Button>
-            <Radio.Button value="beautesoft">Beautesoft</Radio.Button>
-            {/* <Radio.Button value="large">Large</Radio.Button> */}
-          </Radio.Group>
-        </div>
+      {/* Radio Buttons */}
+      <div
+        className={`flex items-center 
+         justify-end 
+        mb-[16px]`}
+      >
+        <Button
+          onClick={() => handleAddPoints()}
+          type="primary"
+          className="mr-[20px]"
+        >
+          Issue Points Manually
+        </Button>
+
+        <Radio.Group
+          value={size}
+          onChange={onRadioChange}
+          style={{ minWidth: "160px" }}
+        >
+          <Radio.Button value="eber">Eber</Radio.Button>
+          <Radio.Button value="beautesoft">Beautesoft</Radio.Button>
+        </Radio.Group>
       </div>
 
-      {/* <input
-      type="text"
-      // value={search}
-      onChange={(e) => handleSearch(e)}
-      placeholder="Search Customers"
-    /> */}
-      {/* {isLoading && <p>Loading...</p>}
-    {error && <p>Error: {error.message}</p>} */}
-      {/* <ul>
-      {customers?.map((customer: any) => (
-        <li key={customer.id}>{customer.display_name}</li>
-      ))}
+      <div className="flex items-center justify-start mb-[16px]">
+        {/* From Date */}
+        {size !== "eber" && (
+          <DatePicker
+            placeholder="From Date"
+            format="YYYY-MM-DD"
+            value={filters.from_date ? moment(filters.from_date) : null}
+            onChange={(date, dateString) =>
+              handleFilterChange("from_date", dateString)
+            }
+            className="mr-[12px]"
+          />
+        )}
+        {size !== "eber" && (
+          <DatePicker
+            placeholder="To Date"
+            format="YYYY-MM-DD"
+            value={filters.to_date ? moment(filters.to_date) : null}
+            onChange={(date, dateString) =>
+              handleFilterChange("to_date", dateString)
+            }
+            className="mr-[12px]"
+          />
+        )}
 
-    </ul> */}
+        {/* Transaction Number */}
+        {size !== "eber" && (
+          <Input
+            placeholder="Transaction Number"
+            value={filters.transac_no}
+            onChange={(e) => handleFilterChange("transac_no", e.target.value)}
+            className="mr-[12px] w-[200px]"
+          />
+        )}
+
+        {/* Customer Name */}
+        {size !== "eber" && (
+          <Input
+            placeholder="Customer Name"
+            value={filters.cust_name}
+            onChange={(e) => handleFilterChange("cust_name", e.target.value)}
+            className="mr-[12px] w-[200px]"
+          />
+        )}
+
+        {size === "eber" && (
+          <Input
+            placeholder="search Transaction"
+            value={filters.transaction_no}
+            onChange={(e) => handleFilterChange("transaction_no", e.target.value)}
+            className="mr-[12px] w-[200px]"
+            allowClear
+            onClear={() => handleclear("transaction_no", '')} // Clear input when the close button is clicked
+          />
+        )}
+
+        {/* Search Button */}
+        <Button type="primary" onClick={handleSearch}>
+          Search
+        </Button>
+      </div>
+
       <Table
         columns={size === "eber" ? columns : bsColumns}
         loading={loading} // Show loading state if `cusList` is empty

@@ -138,10 +138,9 @@ export const adjustPointsCus = async (body: {}) => {
 };
 
 export const getTransactions = async (params: {
-  page?: number;
-  limit?: number;
-  display_name?: string;
+
 }) => {
+  console.log(params)
   const response = await apiClient.get("integration/point_transaction", {
     params,
   });

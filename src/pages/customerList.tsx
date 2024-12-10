@@ -8,6 +8,7 @@ import search from "../assets/icons/search.svg";
 import { Link, useNavigate } from "react-router-dom";
 import type { ConfigProviderProps, RadioChangeEvent } from "antd";
 import { Radio, Tabs } from "antd";
+import { omitEmptyKeys } from "../services/utils";
 // type SizeType = ConfigProviderProps["componentSize"];
 
 // interface DataType {
@@ -259,14 +260,14 @@ const CustomerList = (props: any) => {
 
     setIsLoading(true);
     if (size === "eber") {
-      getCustomerList(filters); // Fetch first page on mount
+      getCustomerList(omitEmptyKeys(filters)); // Fetch first page on mount
     } else {
       setFilters({
         ...filters,
         page: 1,
         limit: 10,
       });
-      filters?.search && fetchBsCustomer(filters); // Fetch first page on mount
+      filters?.search && fetchBsCustomer(omitEmptyKeys(filters)); // Fetch first page on mount
     }
     // getCustomerList()
     // getCustomerDetails({ email: "muthu98wic@gmail.com" });

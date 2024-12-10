@@ -139,8 +139,9 @@ function AddPoints(props:any) {
       console.log(res);
       if (res.success) {
         message.success("Points issued");
-        navigate("/");
-        props.tabChange('1')
+        // navigate("/");
+        handleCancel()
+        // props.tabChange('1')
 
       }
     });

@@ -80,7 +80,7 @@ const RedemptionForm = (props: any) => {
               verify_only: !res.data.verify_only,
             });
 
-            message.success("Redeem code verified ");
+            message.success("Redeem code verified, submit to redeem ");
           } else {
             message.success("Reward redeemed");
             console.log(props);
@@ -114,6 +114,7 @@ const RedemptionForm = (props: any) => {
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             Redeem Code
+            <span>*</span>
           </label>
           <input
             type="text"
@@ -128,6 +129,9 @@ const RedemptionForm = (props: any) => {
         </div>
 
         {/* Phone Number */}
+
+        {param.id && (
+
 
         <div>
           <label
@@ -147,6 +151,7 @@ const RedemptionForm = (props: any) => {
             disabled
           />
         </div>
+)}
 
         {/* POS Redeem Method */}
         {param.id && (
